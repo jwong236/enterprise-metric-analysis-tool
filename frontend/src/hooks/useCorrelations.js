@@ -4,8 +4,6 @@ import { formatDate } from "../utils/formatDate";
 
 export default function useCorrelations(dateRange, barGraphMainMetric) {
   const root_path = import.meta.env.VITE_API_ROOT;
-  console.log("test")
-  console.log(root_path)
   const [correlations, setCorrelations] = useState({});
 
   useEffect(() => {
