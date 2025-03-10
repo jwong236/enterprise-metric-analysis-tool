@@ -1,0 +1,9 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: emat-frontend:latest
+    container_name: emat-frontend
+    ports:
+      - '3000:80'
