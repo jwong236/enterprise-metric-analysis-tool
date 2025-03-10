@@ -7,3 +7,19 @@ services:
     container_name: emat-frontend
     ports:
       - '3000:80'
+
+  database:
+    image: postgres:15-alpine
+    container_name: emat-database
+    environment:
+      POSTGRES_USER: emat
+      POSTGRES_PASSWORD: emat
+      POSTGRES_DB: emat
+    volumes:
+      - emat-db-data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+    ports:
+      - '5432:5432'
+  
+volumes:
+  emat-db-data:
