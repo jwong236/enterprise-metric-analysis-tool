@@ -6,7 +6,6 @@ import os
 
 # set FLASK_APP=app.py
 # set FLASK_ENV=development
-# set VITE_API_ROOT=http://localhost:5000
 
 app = Flask(__name__)
 CORS(app)
@@ -17,17 +16,18 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
 
-# frontend_folder = os.path.join(os.getcwd(), "..", "frontend")
-# dist_folder = os.path.join(frontend_folder, "dist")
+frontend_folder = os.path.join(os.getcwd(), "..", "frontend")
+dist_folder = os.path.join(frontend_folder, "dist")
 
 
 # Serve the built frontend
-# @app.route("/", defaults={"filename": ""})
-# @app.route("/<path:filename>")
-# def index(filename):
-#     if not filename:
-#         filename = "index.html"
-#     return send_from_directory(dist_folder, filename)
+@app.route("/", defaults={"filename": ""})
+@app.route("/<path:filename>")
+def index(filename):
+    if not filename:
+        filename = "index.html"
+    return send_from_directory(dist_folder, filename)
+
 
 import routes
 
