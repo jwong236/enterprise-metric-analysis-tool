@@ -8,14 +8,17 @@ from models import (
     RefinementChangesCount,
     BlockedTaskTime,
     PullRequest,
+    Team,
     Service,
+    Repository,
 )
 
 
 def get_deployment_frequency(start_date, end_date):
     query = (
-        db.session.query(DeploymentFrequency, Service.service_name)
+        db.session.query(DeploymentFrequency, Service.service_name, Team.team_name)
         .join(Service, DeploymentFrequency.service_id == Service.id)
+        .join(Team, DeploymentFrequency.team_id == Team.id)
         .filter(DeploymentFrequency.date >= start_date)
         .filter(DeploymentFrequency.date <= end_date)
         .order_by(DeploymentFrequency.date)
@@ -23,11 +26,12 @@ def get_deployment_frequency(start_date, end_date):
     results = query.all()
 
     data = []
-    for df_row, service_name in results:
+    for df_row, service_name, team_name in results:
         data.append(
             {
                 "date": df_row.date.isoformat(),
                 "service_name": service_name,
+                "team_name": team_name,
                 "team_id": df_row.team_id,
             }
         )
@@ -174,8 +178,6 @@ def get_pull_request_merge_time(start_date, end_date):
     query = (
         db.session.query(PullRequest, Service.service_name)
         .join(Service, PullRequest.service_id == Service.id)
-        .filter(PullRequest.date != None)
-        .filter(PullRequest.resolved != None)
         .filter(PullRequest.date >= start_date)
         .filter(PullRequest.date <= end_date)
         .order_by(PullRequest.date)

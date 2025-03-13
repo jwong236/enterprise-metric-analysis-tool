@@ -4,6 +4,7 @@ from flask import request, jsonify
 from services.generate_metric_response import generate_metric_response
 import services.metrics as metrics
 from services.correlations import calculate_correlations
+from services.database_service import fetch_all_entries
 
 
 @app.route("/api/test", methods=["GET"])
@@ -109,3 +110,18 @@ def correlations():
 
     result, status_code = calculate_correlations(start_date, end_date, main_metric)
     return result, status_code
+
+
+@app.route("/api/get_all_entries", methods=["GET"])
+def get_all_entries():
+    table_name = request.args.get("table_name")
+
+    if not table_name:
+        return (
+            jsonify({"error": "table_name parameter is required"}),
+            400,
+        )
+
+    data, status_code = fetch_all_entries(table_name)
+
+    return data, status_code
