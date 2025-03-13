@@ -1,4 +1,5 @@
 from app import db
+from sqlalchemy import CheckConstraint
 
 
 class Team(db.Model):
@@ -41,6 +42,11 @@ class PullRequest(db.Model):
     date = db.Column(db.Date, nullable=False)
     resolved = db.Column(db.Date, nullable=True)
 
+    # Relationships
+    repository = db.relationship("Repository", backref="pull_requests")
+    service = db.relationship("Service", backref="pull_requests")
+    team = db.relationship("Team", backref="pull_requests")
+
     def to_json(self):
         return {
             "id": self.id,
@@ -58,9 +64,13 @@ class BlockedTaskTime(db.Model):
     __tablename__ = "blocked_task_time"
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date, nullable=False)
-    blocked_hours = db.Column(db.Numeric(5, 2), nullable=False)
+    blocked_hours = db.Column(db.Numeric(precision=5, scale=2), nullable=False)
     team_id = db.Column(db.Integer, db.ForeignKey("team.id"), nullable=False)
     service_id = db.Column(db.Integer, db.ForeignKey("service.id"), nullable=False)
+
+    # Relationships
+    team = db.relationship("Team", backref="blocked_tasks")
+    service = db.relationship("Service", backref="blocked_tasks")
 
     def to_json(self):
         return {
@@ -79,6 +89,10 @@ class DeploymentFrequency(db.Model):
     team_id = db.Column(db.Integer, db.ForeignKey("team.id"), nullable=False)
     service_id = db.Column(db.Integer, db.ForeignKey("service.id"), nullable=False)
 
+    # Relationships
+    team = db.relationship("Team", backref="deployments")
+    service = db.relationship("Service", backref="deployments")
+
     def to_json(self):
         return {
             "id": self.id,
@@ -92,9 +106,13 @@ class LeadTimeForChange(db.Model):
     __tablename__ = "lead_time_for_change"
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date, nullable=False)
-    time_to_change_hours = db.Column(db.Numeric(5, 2), nullable=False)
+    time_to_change_hours = db.Column(db.Numeric(precision=5, scale=2), nullable=False)
     team_id = db.Column(db.Integer, db.ForeignKey("team.id"), nullable=False)
     service_id = db.Column(db.Integer, db.ForeignKey("service.id"), nullable=False)
+
+    # Relationships
+    team = db.relationship("Team", backref="lead_times")
+    service = db.relationship("Service", backref="lead_times")
 
     def to_json(self):
         return {
@@ -114,6 +132,10 @@ class OpenIssueBugCount(db.Model):
     team_id = db.Column(db.Integer, db.ForeignKey("team.id"), nullable=False)
     service_id = db.Column(db.Integer, db.ForeignKey("service.id"), nullable=False)
 
+    # Relationships
+    team = db.relationship("Team", backref="open_issues")
+    service = db.relationship("Service", backref="open_issues")
+
     def to_json(self):
         return {
             "id": self.id,
@@ -132,6 +154,10 @@ class RefinementChangesCount(db.Model):
     team_id = db.Column(db.Integer, db.ForeignKey("team.id"), nullable=False)
     service_id = db.Column(db.Integer, db.ForeignKey("service.id"), nullable=False)
 
+    # Relationships
+    team = db.relationship("Team", backref="refinement_changes")
+    service = db.relationship("Service", backref="refinement_changes")
+
     def to_json(self):
         return {
             "id": self.id,
@@ -146,9 +172,21 @@ class RetroMood(db.Model):
     __tablename__ = "retro_mood"
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date, nullable=False)
-    avg_retro_mood = db.Column(db.Numeric(3, 2), nullable=False)
+    avg_retro_mood = db.Column(db.Numeric(precision=3, scale=2), nullable=False)
     team_id = db.Column(db.Integer, db.ForeignKey("team.id"), nullable=False)
     service_id = db.Column(db.Integer, db.ForeignKey("service.id"), nullable=False)
+
+    # Add CHECK constraint
+    __table_args__ = (
+        CheckConstraint(
+            "avg_retro_mood >= 1 AND avg_retro_mood <= 5",
+            name="check_avg_retro_mood_range",
+        ),
+    )
+
+    # Relationships
+    team = db.relationship("Team", backref="retro_moods")
+    service = db.relationship("Service", backref="retro_moods")
 
     def to_json(self):
         return {

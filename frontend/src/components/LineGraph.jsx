@@ -42,7 +42,6 @@ const LineGraph = ({ selectedMetrics, dateRange }) => {
   );
 
   // Extract the correct key from metricsMapping for each metric
-  console.log(filteredMetrics);
   const series = filteredMetrics
     .map((metric) => {
       const metricName = metric.name;

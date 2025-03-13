@@ -4,6 +4,10 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import os
 
+# set FLASK_APP=app.py
+# set FLASK_ENV=development
+# set VITE_API_ROOT=http://localhost:5000
+
 app = Flask(__name__)
 CORS(app)
 
@@ -24,6 +28,12 @@ db = SQLAlchemy(app)
 #     if not filename:
 #         filename = "index.html"
 #     return send_from_directory(dist_folder, filename)
+
+import routes
+
+# Create the database tables
+with app.app_context():
+    db.create_all()
 
 
 if __name__ == "__main__":

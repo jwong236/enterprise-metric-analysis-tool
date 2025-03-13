@@ -10,23 +10,21 @@ export default function useMetricsData(dateRange) {
 
   useEffect(() => {
     const fetchData = async () => {
-      const startDate = formatDate(dateRange[0]); // Format start date to YYYY-MM-DD
-      const endDate = formatDate(dateRange[1]); // Format start date to YYYY-MM-DD
+      const startDate = formatDate(dateRange[0]);
+      const endDate = formatDate(dateRange[1]);
 
       const fetchPromises = Object.keys(metricsMapping).map((metric) => {
-        // Convert the metric name to a key that matches the format in metricIds
         const metricKey = metricsMapping[metric].endpoint;
         const metricId = metricsMapping[metric].id;
 
         if (!metricId) {
           console.error(`No ID found for metric: ${metricKey}`);
-          return { name: metric, data: [] }; // Return empty values if ID not found
+          return { name: metric, data: [] };
         }
 
-        // Derive the API endpoint from the metric key directly
         const endpoint = metricKey;
 
-        const url = `${root_path}/api/raw_data/${endpoint}?start_date=${startDate}&end_date=${endDate}`;
+        const url = `${root_path}/api/metrics/${endpoint}?start_date=${startDate}&end_date=${endDate}`;
 
         return fetch(url)
           .then((response) => {

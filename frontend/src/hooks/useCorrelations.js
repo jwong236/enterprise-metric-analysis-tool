@@ -1,4 +1,3 @@
-// hooks/useCorrelations.js
 import { useState, useEffect } from "react";
 import { formatDate } from "../utils/formatDate";
 
@@ -13,24 +12,27 @@ export default function useCorrelations(dateRange, barGraphMainMetric) {
 
       // Ensure the metric is properly formatted (no spaces, lowercase)
       const metric = barGraphMainMetric.replace(/\s+/g, "_").toLowerCase();
-      const url = `${root_path}/api/correlation?start_date=${startDate}&end_date=${endDate}&main_metric=${metric}`;
-      console.log(url);
+      const url = `${root_path}/api/correlations?start_date=${startDate}&end_date=${endDate}&main_metric=${metric}`;
 
       try {
         const response = await fetch(url);
-        if (!response.ok)
-          throw new Error(`Error fetching correlations: ${response.status}`);
+        if (!response.ok) throw new Error(`Error fetching correlations: ${response.status}`);
 
         const data = await response.json();
+        
 
-        setCorrelations(data); // Set the transformed correlation data
+        if (data.status === "success" && data.correlations) {
+          setCorrelations(data.correlations); // Extract only the correlations object
+          console.log(data.correlations);
+        } else {
+          throw new Error(data.error || "Invalid response from API");
+        }
       } catch (error) {
         console.error("Failed to fetch correlations:", error);
-        setCorrelations({}); // Reset correlations on error
+        setCorrelations({});
       }
     };
 
-    // Fetch data when dateRange or barGraphMainMetric changes
     fetchData();
   }, [dateRange, barGraphMainMetric]);
 
