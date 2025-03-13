@@ -4,6 +4,8 @@ import { ThemeProvider, CssBaseline } from "@mui/material";
 import theme from "./theme";
 import MainPage from "./pages/MainPage";
 
+export const BASE_URL = import.meta.env.MODE === "development" ? "http://127.0.0.1:5000/api" : "/api";
+
 function App() {
   const globalStyles = {
     margin: 0,
