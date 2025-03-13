@@ -1,11 +1,9 @@
 import { useState, useEffect } from "react";
 import { formatDate } from "../utils/formatDate";
 import { metricsMapping } from "../utils/constants";
+import { BASE_URL } from "../App"; // Import BASE_URL
 
 export default function useMetricsData(dateRange) {
-  const root_path = import.meta.env.VITE_API_ROOT;
-
-
   const [allMetricsData, setAllMetricsData] = useState([]);
 
   useEffect(() => {
@@ -24,7 +22,8 @@ export default function useMetricsData(dateRange) {
 
         const endpoint = metricKey;
 
-        const url = `${root_path}/api/metrics/${endpoint}?start_date=${startDate}&end_date=${endDate}`;
+        // 🔥 Changed only this line to use BASE_URL 🔥
+        const url = `${BASE_URL}/metrics/${endpoint}?start_date=${startDate}&end_date=${endDate}`;
 
         return fetch(url)
           .then((response) => {

@@ -1,28 +1,28 @@
 import { useState, useEffect } from "react";
 import { formatDate } from "../utils/formatDate";
+import { BASE_URL } from "../App";
 
 export default function useCorrelations(dateRange, barGraphMainMetric) {
-  const root_path = import.meta.env.VITE_API_ROOT;
   const [correlations, setCorrelations] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
-      const startDate = formatDate(dateRange[0]); // Format start date to YYYY-MM-DD
-      const endDate = formatDate(dateRange[1]);   // Format end date to YYYY-MM-DD
+      const startDate = formatDate(dateRange[0]);
+      const endDate = formatDate(dateRange[1]);
 
-      // Ensure the metric is properly formatted (no spaces, lowercase)
+
       const metric = barGraphMainMetric.replace(/\s+/g, "_").toLowerCase();
-      const url = `${root_path}/api/correlations?start_date=${startDate}&end_date=${endDate}&main_metric=${metric}`;
+
+      const url = `${BASE_URL}/correlations?start_date=${startDate}&end_date=${endDate}&main_metric=${metric}`;
 
       try {
         const response = await fetch(url);
         if (!response.ok) throw new Error(`Error fetching correlations: ${response.status}`);
 
         const data = await response.json();
-        
 
         if (data.status === "success" && data.correlations) {
-          setCorrelations(data.correlations); // Extract only the correlations object
+          setCorrelations(data.correlations);
           console.log(data.correlations);
         } else {
           throw new Error(data.error || "Invalid response from API");
