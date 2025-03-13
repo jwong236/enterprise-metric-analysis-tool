@@ -6,7 +6,7 @@ from database.db_connector import get_db_connection
 from services.correlations import calculate_correlations
 
 
-@app.route("/test-db")
+@app.route("/api/test-db")
 def test_db():
     try:
         conn = get_db_connection()
