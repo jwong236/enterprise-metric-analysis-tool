@@ -54,11 +54,7 @@ Here’s a quick look at EMAT in action:
 
 ### Live Demo
 
-[Click here to try the application yourself!](Linktodeployment) (Not activate yet)
-
-## Installation
-
-EMAT is dockerized so you can easily run it locally using ```docker-compose up --build``` and then visiting http://localhost:3000/
+[Click here to try the application yourself!](https://enterprise-metric-analysis-tool.onrender.com/)
 
 ## Technologies Used
 
