@@ -3,7 +3,7 @@ from sqlalchemy import CheckConstraint
 
 
 class Team(db.Model):
-    __tablename__ = "team"
+    __tablename__ = "teams"
     id = db.Column(db.Integer, primary_key=True)
     team_name = db.Column(db.String(100), unique=True, nullable=False)
 
@@ -12,7 +12,7 @@ class Team(db.Model):
 
 
 class Service(db.Model):
-    __tablename__ = "service"
+    __tablename__ = "services"
     id = db.Column(db.Integer, primary_key=True)
     service_name = db.Column(db.String(100), unique=True, nullable=False)
 
@@ -21,7 +21,7 @@ class Service(db.Model):
 
 
 class Repository(db.Model):
-    __tablename__ = "repository"
+    __tablename__ = "repositories"
     id = db.Column(db.Integer, primary_key=True)
     repository_name = db.Column(db.String(100), unique=True, nullable=False)
 
@@ -33,10 +33,10 @@ class PullRequest(db.Model):
     __tablename__ = "pull_request"
     id = db.Column(db.Integer, primary_key=True)
     repository_id = db.Column(
-        db.Integer, db.ForeignKey("repository.id"), nullable=False
+        db.Integer, db.ForeignKey("repositories.id"), nullable=False
     )
-    service_id = db.Column(db.Integer, db.ForeignKey("service.id"), nullable=False)
-    team_id = db.Column(db.Integer, db.ForeignKey("team.id"), nullable=False)
+    service_id = db.Column(db.Integer, db.ForeignKey("services.id"), nullable=False)
+    team_id = db.Column(db.Integer, db.ForeignKey("teams.id"), nullable=False)
     author = db.Column(db.String(100), nullable=False)
     reviewer = db.Column(db.String(100), nullable=True)
     date = db.Column(db.Date, nullable=False)
@@ -65,8 +65,8 @@ class BlockedTaskTime(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date, nullable=False)
     blocked_hours = db.Column(db.Numeric(precision=5, scale=2), nullable=False)
-    team_id = db.Column(db.Integer, db.ForeignKey("team.id"), nullable=False)
-    service_id = db.Column(db.Integer, db.ForeignKey("service.id"), nullable=False)
+    team_id = db.Column(db.Integer, db.ForeignKey("teams.id"), nullable=False)
+    service_id = db.Column(db.Integer, db.ForeignKey("services.id"), nullable=False)
 
     # Relationships
     team = db.relationship("Team", backref="blocked_tasks")
@@ -86,8 +86,8 @@ class DeploymentFrequency(db.Model):
     __tablename__ = "deployment_frequency"
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date, nullable=False)
-    team_id = db.Column(db.Integer, db.ForeignKey("team.id"), nullable=False)
-    service_id = db.Column(db.Integer, db.ForeignKey("service.id"), nullable=False)
+    team_id = db.Column(db.Integer, db.ForeignKey("teams.id"), nullable=False)
+    service_id = db.Column(db.Integer, db.ForeignKey("services.id"), nullable=False)
 
     # Relationships
     team = db.relationship("Team", backref="deployments")
@@ -107,8 +107,8 @@ class LeadTimeForChange(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date, nullable=False)
     time_to_change_hours = db.Column(db.Numeric(precision=5, scale=2), nullable=False)
-    team_id = db.Column(db.Integer, db.ForeignKey("team.id"), nullable=False)
-    service_id = db.Column(db.Integer, db.ForeignKey("service.id"), nullable=False)
+    team_id = db.Column(db.Integer, db.ForeignKey("teams.id"), nullable=False)
+    service_id = db.Column(db.Integer, db.ForeignKey("services.id"), nullable=False)
 
     # Relationships
     team = db.relationship("Team", backref="lead_times")
@@ -129,8 +129,8 @@ class OpenIssueBugCount(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date, nullable=False)
     issue_count = db.Column(db.Integer, nullable=False)
-    team_id = db.Column(db.Integer, db.ForeignKey("team.id"), nullable=False)
-    service_id = db.Column(db.Integer, db.ForeignKey("service.id"), nullable=False)
+    team_id = db.Column(db.Integer, db.ForeignKey("teams.id"), nullable=False)
+    service_id = db.Column(db.Integer, db.ForeignKey("services.id"), nullable=False)
 
     # Relationships
     team = db.relationship("Team", backref="open_issues")
@@ -147,12 +147,12 @@ class OpenIssueBugCount(db.Model):
 
 
 class RefinementChangesCount(db.Model):
-    __tablename__ = "refinement_changes_count"
+    __tablename__ = "refinement_changes"
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date, nullable=False)
     change_id = db.Column(db.String(50), nullable=False)
-    team_id = db.Column(db.Integer, db.ForeignKey("team.id"), nullable=False)
-    service_id = db.Column(db.Integer, db.ForeignKey("service.id"), nullable=False)
+    team_id = db.Column(db.Integer, db.ForeignKey("teams.id"), nullable=False)
+    service_id = db.Column(db.Integer, db.ForeignKey("services.id"), nullable=False)
 
     # Relationships
     team = db.relationship("Team", backref="refinement_changes")
@@ -173,8 +173,8 @@ class RetroMood(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date, nullable=False)
     avg_retro_mood = db.Column(db.Numeric(precision=3, scale=2), nullable=False)
-    team_id = db.Column(db.Integer, db.ForeignKey("team.id"), nullable=False)
-    service_id = db.Column(db.Integer, db.ForeignKey("service.id"), nullable=False)
+    team_id = db.Column(db.Integer, db.ForeignKey("teams.id"), nullable=False)
+    service_id = db.Column(db.Integer, db.ForeignKey("services.id"), nullable=False)
 
     # Add CHECK constraint
     __table_args__ = (
