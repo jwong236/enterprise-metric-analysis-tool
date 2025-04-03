@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { formatDate } from "../utils/formatDate";
 import { metricsMapping } from "../utils/constants";
-import { BASE_URL } from "../App"; // Import BASE_URL
+import { BASE_URL } from "../App";
 
 export default function useMetricsData(dateRange) {
   const [allMetricsData, setAllMetricsData] = useState([]);
