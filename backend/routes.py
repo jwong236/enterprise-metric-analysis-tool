@@ -19,7 +19,7 @@ def deployment_frequency():
     if not start_date or not end_date:
         return jsonify({"error": "Missing start_date or end_date"}), 400
 
-    return generate_metric_response(
+    return generate_metric_response("deployment_frequency",
         metrics.get_deployment_frequency, start_date, end_date
     )
 

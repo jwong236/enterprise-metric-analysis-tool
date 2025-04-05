@@ -4,11 +4,11 @@ from services.utils import _process_dates
 from services.metrics import (
     get_deployment_frequency,
     get_lead_time_for_changes,
-    get_pull_request_merge_time,
-    get_blocked_task_time,
-    get_avg_retro_mood,
-    get_open_issue_bug_count,
-    get_refinement_changes_count,
+    get_pull_requests,
+    get_blocked_tasks,
+    get_retro_mood,
+    get_open_issue_bugs,
+    get_refinement_changes,
 )
 from services.generate_metric_response import generate_metric_response
 
@@ -34,11 +34,11 @@ def calculate_correlations(start_date, end_date, main_metric):
         metric_functions = {
             "deployment_frequency": get_deployment_frequency,
             "lead_time_for_changes": get_lead_time_for_changes,
-            "avg_pull_request_merge_time": get_pull_request_merge_time,
-            "avg_blocked_task_time": get_blocked_task_time,
-            "avg_retro_mood": get_avg_retro_mood,
-            "open_issue_bug_count": get_open_issue_bug_count,
-            "refinement_changes_count": get_refinement_changes_count,
+            "pull_requests": get_pull_requests,
+            "blocked_tasks": get_blocked_tasks,
+            "retro_mood": get_retro_mood,
+            "open_issue_bugs": get_open_issue_bugs,
+            "refinement_changes": get_refinement_changes,
         }
 
         if main_metric not in metric_functions:

@@ -21,8 +21,6 @@ export default function useMetricsData(dateRange) {
         }
 
         const endpoint = metricKey;
-
-        // 🔥 Changed only this line to use BASE_URL 🔥
         const url = `${BASE_URL}/metrics/${endpoint}?start_date=${startDate}&end_date=${endDate}`;
 
         return fetch(url)
@@ -31,10 +29,43 @@ export default function useMetricsData(dateRange) {
               throw new Error(`Error fetching ${metric}: ${response.status}`);
             return response.json();
           })
-          .then((data) => ({
-            name: metric,
-            data: data.data,
-          }))
+          .then((data) => {
+            // Process data based on metric type
+            const processedData = data.data.map(dateRangeData => {
+              // For metrics that need averages
+              if (["lead_time_for_changes", "blocked_task_time", "open_issue_bug_count", "avg_retro_mood"].includes(endpoint)) {
+                // Calculate average if there are entries
+                if (dateRangeData.entries && dateRangeData.entries.length > 0) {
+                  const sum = dateRangeData.entries.reduce((acc, entry) => acc + entry.value, 0);
+                  const avg = sum / dateRangeData.entries.length;
+                  return {
+                    ...dateRangeData,
+                    average: avg
+                  };
+                }
+                return {
+                  ...dateRangeData,
+                  average: 0
+                };
+              } 
+              // For count-based metrics (deployment_frequency, refinement_changes_count)
+              else if (["deployment_frequency", "refinement_changes_count"].includes(endpoint)) {
+                return {
+                  ...dateRangeData,
+                  count: dateRangeData.entries ? dateRangeData.entries.length : 0
+                };
+              }
+              // Default case - keep data as is
+              else {
+                return dateRangeData;
+              }
+            });
+
+            return {
+              name: metric,
+              data: processedData,
+            };
+          })
           .catch((error) => {
             console.error(`Error fetching data for ${metric}:`, error);
             return { name: metric, data: [] };
