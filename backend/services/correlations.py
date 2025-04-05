@@ -1,16 +1,35 @@
 from flask import jsonify
 from scipy.stats import pearsonr
 from services.utils import _process_dates
-from services.metrics import (
-    get_deployment_frequency,
-    get_lead_time_for_changes,
-    get_pull_requests,
-    get_blocked_tasks,
-    get_retro_mood,
-    get_open_issue_bugs,
-    get_refinement_changes,
+from services.metric_processor import (
+    DeploymentFrequencyProcessor,
+    LeadTimeForChangeProcessor,
+    RetroMoodProcessor,
+    OpenIssueBugProcessor,
+    RefinementChangeProcessor,
+    BlockedTaskProcessor,
+    PullRequestProcessor,
 )
-from services.generate_metric_response import generate_metric_response
+
+# Create instances of the processors
+deployment_frequency_processor = DeploymentFrequencyProcessor()
+lead_time_for_changes_processor = LeadTimeForChangeProcessor()
+retro_mood_processor = RetroMoodProcessor()
+open_issue_bugs_processor = OpenIssueBugProcessor()
+refinement_changes_processor = RefinementChangeProcessor()
+blocked_tasks_processor = BlockedTaskProcessor()
+pull_requests_processor = PullRequestProcessor()
+
+# Map metric names to their processors
+metric_processors = {
+    "deployment_frequency": deployment_frequency_processor,
+    "lead_time_for_changes": lead_time_for_changes_processor,
+    "retro_mood": retro_mood_processor,
+    "open_issue_bugs": open_issue_bugs_processor,
+    "refinement_changes": refinement_changes_processor,
+    "blocked_tasks": blocked_tasks_processor,
+    "pull_requests": pull_requests_processor,
+}
 
 
 def calculate_correlations(start_date, end_date, main_metric):
@@ -30,33 +49,73 @@ def calculate_correlations(start_date, end_date, main_metric):
         )
         print(full_date_range)
 
-        # Step 2: Fetch data for all metrics using generate_metric_response
-        metric_functions = {
-            "deployment_frequency": get_deployment_frequency,
-            "lead_time_for_changes": get_lead_time_for_changes,
-            "pull_requests": get_pull_requests,
-            "blocked_tasks": get_blocked_tasks,
-            "retro_mood": get_retro_mood,
-            "open_issue_bugs": get_open_issue_bugs,
-            "refinement_changes": get_refinement_changes,
-        }
-
-        if main_metric not in metric_functions:
+        # Step 2: Fetch data for all metrics using the processors
+        if main_metric not in metric_processors:
             return {"error": f"Invalid main_metric '{main_metric}'"}
 
         time_series = {}
-        for metric in metric_functions:
-            time_series[metric] = []
-
-        for metric_name, func in metric_functions.items():
-            response, status = generate_metric_response(func, start_date, end_date)
-            if status != 200:
-                return
-            response = response.get_json()
-            entries = response["data"]
-            for entry in entries:
-                if entry["dateRange"] in formatted_date_ranges:
-                    time_series[metric_name].append(entry["count"])
+        for metric_name, processor in metric_processors.items():
+            time_series[metric_name] = []
+            
+            # Get data for each date range
+            for date_range in date_ranges:
+                query = processor.get_query(date_range[0], date_range[1])
+                results = query.all()
+                entries = processor.process_results(results)
+                
+                # For correlations, we need a single value per date range
+                # This depends on the metric type
+                if metric_name == "deployment_frequency":
+                    # Count deployments
+                    time_series[metric_name].append(len(entries))
+                elif metric_name == "lead_time_for_changes":
+                    # Average lead time
+                    if entries:
+                        avg_time = sum(float(entry.get('time_to_change_hours', 0)) for entry in entries) / len(entries)
+                    else:
+                        avg_time = 0
+                    time_series[metric_name].append(avg_time)
+                elif metric_name == "retro_mood":
+                    # Single mood value per week
+                    if entries:
+                        mood_value = entries[0].get('retro_mood', 0) if entries else 0
+                    else:
+                        mood_value = 0
+                    time_series[metric_name].append(mood_value)
+                elif metric_name == "open_issue_bugs":
+                    # Count bugs
+                    time_series[metric_name].append(len(entries))
+                elif metric_name == "refinement_changes":
+                    # Count changes
+                    time_series[metric_name].append(len(entries))
+                elif metric_name == "blocked_tasks":
+                    # Average blocked hours
+                    if entries:
+                        avg_time = sum(float(entry.get('blocked_hours', 0)) for entry in entries) / len(entries)
+                    else:
+                        avg_time = 0
+                    time_series[metric_name].append(avg_time)
+                elif metric_name == "pull_requests":
+                    # Average merge time
+                    if entries:
+                        # Filter entries where resolved is not None
+                        resolved_entries = [entry for entry in entries if entry.get('resolved')]
+                        if resolved_entries:
+                            # Calculate time difference in hours for each entry
+                            from datetime import datetime
+                            time_diffs = []
+                            for entry in resolved_entries:
+                                date_created = datetime.fromisoformat(entry.get('date'))
+                                date_resolved = datetime.fromisoformat(entry.get('resolved'))
+                                diff_hours = (date_resolved - date_created).total_seconds() / 3600
+                                time_diffs.append(diff_hours)
+                            
+                            avg_time = sum(time_diffs) / len(time_diffs)
+                        else:
+                            avg_time = 0
+                    else:
+                        avg_time = 0
+                    time_series[metric_name].append(avg_time)
 
         # Step 3: Align the lists based on date ranges
         correlations = {}

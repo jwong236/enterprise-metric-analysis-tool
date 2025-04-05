@@ -54,6 +54,21 @@ def splice_date_range(start_date, end_date):
     return date_ranges
 
 
+def get_full_date_range(start_date_str, end_date_str, start_day=WEEK_START_DAY):
+    """
+    Returns a string representing the full date range adjusted to the week start day.
+    Format: "YYYY-MM-DDThh:mm:ss to YYYY-MM-DDThh:mm:ss"
+    """
+    if not start_date_str or not end_date_str:
+        raise ValueError("Both start_date and end_date parameters are required.")
+    
+    adj_start, adj_end = adjust_date_range(start_date_str, end_date_str, start_day)
+    adj_start = datetime.combine(adj_start, datetime.min.time())
+    adj_end = datetime.combine(adj_end, datetime.max.time())
+    
+    return f"{adj_start.isoformat()} to {adj_end.isoformat()}"
+
+
 def _process_dates(start_date_str, end_date_str):
     """
     Processes the start and end dates by converting them to datetime, adjusting them

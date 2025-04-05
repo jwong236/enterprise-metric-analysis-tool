@@ -2,16 +2,13 @@ from flask import jsonify
 from services.utils import _process_dates
 
 
-def generate_metric_response(metric_function, start_date, end_date):
+def get_entries(metric_function, start_date, end_date):
     """
     A helper function to process dates and fetch metric data for any metric function.
     """
     try:
-        # Create list of all date ranges in full range, define full date range based on first and last date in list.
         date_ranges = _process_dates(start_date, end_date)
-        full_date_range = (f"{date_ranges[0][0].isoformat()} to {date_ranges[-1][1].isoformat()}")
         
-        # Call metric function for each date range and append to list.
         data = []
         for date_range in date_ranges:
             entries = metric_function(date_range[0], date_range[1])
@@ -21,12 +18,7 @@ def generate_metric_response(metric_function, start_date, end_date):
                     "entries": entries,
                 }
             )
-        return (
-            jsonify(
-                {"status": "success", "fullDateRange": full_date_range, "data": data}
-            ),
-            200,
-        )
+        return data
 
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
