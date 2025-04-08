@@ -1,3 +1,5 @@
+# test_metrics.py
+# python -m pytest tests/test_metrics.py
 import pytest
 from datetime import datetime
 from collections import defaultdict
@@ -38,7 +40,7 @@ def test_get_deployment_frequency(app_context):
     for entry in data:
         date_counter[entry["date"]] += 1
 
-    assert 300 < len(data) < 600
+    assert len(data) == 511
 
 
 def test_get_lead_time_for_changes(app_context):
@@ -59,7 +61,7 @@ def test_get_lead_time_for_changes(app_context):
         assert isinstance(entry["time_to_change_hours"], float)
         assert 0 <= entry["time_to_change_hours"] <= 1000
 
-    assert 300 < len(data) < 400
+    assert len(data) == 364
 
 
 def test_get_retro_mood(app_context):
@@ -80,7 +82,7 @@ def test_get_retro_mood(app_context):
         assert isinstance(entry["avg_retro_mood"], float)
         assert 0 <= entry["avg_retro_mood"] <= 5
 
-    assert 50 < len(data) < 60
+    assert len(data) == 52
 
 
 def test_get_open_issue_bugs(app_context):
@@ -102,7 +104,7 @@ def test_get_open_issue_bugs(app_context):
 
         assert entry["status"] in ["Open", "In Progress", "Resolved"]
 
-    assert 300 < len(data) < 400
+    assert len(data) == 364
 
 
 def test_get_refinement_changes(app_context):
@@ -122,7 +124,7 @@ def test_get_refinement_changes(app_context):
 
         assert entry["refinement_id"].startswith("CHG-")
 
-    assert 400 < len(data) < 450
+    assert len(data) == 410
 
 
 def test_get_blocked_tasks(app_context):
@@ -145,7 +147,7 @@ def test_get_blocked_tasks(app_context):
         assert 0 <= entry["blocked_hours"] <= 100
         assert entry["task_id"].startswith("TASK-")
 
-    assert 300 < len(data) < 400
+    assert len(data) == 364
 
 
 def test_get_pull_requests(app_context):
@@ -171,7 +173,7 @@ def test_get_pull_requests(app_context):
 
         assert "-repo" in entry["repository_name"]
 
-    assert 100 < len(data) < 150
+    assert len(data) == 110
 
 
 def test_data_randomization():

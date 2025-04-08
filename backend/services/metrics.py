@@ -1,5 +1,5 @@
 # metrics.py
-from app import db, app
+from app import db
 from models import (
     DeploymentFrequency,
     LeadTimeForChange,
@@ -15,6 +15,17 @@ from models import (
 
 
 def get_deployment_frequency(start_date, end_date):
+    """
+    Retrieves deployment frequency data within the specified date range.
+
+    Args:
+        start_date (datetime): The start date for filtering deployments
+        end_date (datetime): The end date for filtering deployments
+
+    Returns:
+        list: A list of dictionaries containing deployment data with date,
+              service_name, and team_name
+    """
     query = (
         db.session.query(DeploymentFrequency, Service.service_name, Team.team_name)
         .join(Service, DeploymentFrequency.service_id == Service.id)
@@ -40,7 +51,15 @@ def get_deployment_frequency(start_date, end_date):
 
 def get_lead_time_for_changes(start_date, end_date):
     """
-    Return date, time_to_change_hours, service_name, etc.
+    Retrieves lead time for changes data within the specified date range.
+
+    Args:
+        start_date (datetime): The start date for filtering lead time data
+        end_date (datetime): The end date for filtering lead time data
+
+    Returns:
+        list: A list of dictionaries containing lead time data with date,
+              time_to_change_hours, service_name, and team_name
     """
     query = (
         db.session.query(LeadTimeForChange, Service.service_name, Team.team_name)
@@ -67,7 +86,15 @@ def get_lead_time_for_changes(start_date, end_date):
 
 def get_retro_mood(start_date, end_date):
     """
-    Return date, avg_retro_mood, service_name, etc.
+    Retrieves retrospective mood data within the specified date range.
+
+    Args:
+        start_date (datetime): The start date for filtering retro mood data
+        end_date (datetime): The end date for filtering retro mood data
+
+    Returns:
+        list: A list of dictionaries containing retro mood data with date,
+              avg_retro_mood, service_name, and team_name
     """
     query = (
         db.session.query(RetroMood, Service.service_name, Team.team_name)
@@ -94,7 +121,15 @@ def get_retro_mood(start_date, end_date):
 
 def get_open_issue_bugs(start_date, end_date):
     """
-    Return date, issue_count, service_name, etc.
+    Retrieves open issue bugs data within the specified date range.
+
+    Args:
+        start_date (datetime): The start date for filtering bug data
+        end_date (datetime): The end date for filtering bug data
+
+    Returns:
+        list: A list of dictionaries containing bug data with date, bug_id,
+              bug_title, status, service_name, and team_name
     """
     query = (
         db.session.query(OpenIssueBug, Service.service_name, Team.team_name)
@@ -123,7 +158,15 @@ def get_open_issue_bugs(start_date, end_date):
 
 def get_refinement_changes(start_date, end_date):
     """
-    Return date, change_id, service_name, etc.
+    Retrieves refinement changes data within the specified date range.
+
+    Args:
+        start_date (datetime): The start date for filtering refinement data
+        end_date (datetime): The end date for filtering refinement data
+
+    Returns:
+        list: A list of dictionaries containing refinement data with date,
+              refinement_id, service_name, and team_name
     """
     query = (
         db.session.query(RefinementChange, Service.service_name, Team.team_name)
@@ -150,7 +193,15 @@ def get_refinement_changes(start_date, end_date):
 
 def get_blocked_tasks(start_date, end_date):
     """
-    Return date, blocked_hours, service_name, etc.
+    Retrieves blocked tasks data within the specified date range.
+
+    Args:
+        start_date (datetime): The start date for filtering blocked task data
+        end_date (datetime): The end date for filtering blocked task data
+
+    Returns:
+        list: A list of dictionaries containing blocked task data with date,
+              task_id, blocked_hours, service_name, and team_name
     """
     query = (
         db.session.query(BlockedTask, Service.service_name, Team.team_name)
@@ -178,9 +229,15 @@ def get_blocked_tasks(start_date, end_date):
 
 def get_pull_requests(start_date, end_date):
     """
-    Return start_datetime, end_datetime, service_name (if applicable), etc.
-    If you store the entire PR in the 'pull_request' table, you might also
-    join Service or Repository to fetch their names.
+    Retrieves pull request data within the specified date range.
+
+    Args:
+        start_date (datetime): The start date for filtering pull request data
+        end_date (datetime): The end date for filtering pull request data
+
+    Returns:
+        list: A list of dictionaries containing pull request data with start_datetime,
+              end_datetime, author, reviewer, service_name, team_name, and repository_name
     """
     query = (
         db.session.query(
@@ -200,7 +257,6 @@ def get_pull_requests(start_date, end_date):
 
     data = []
     for pr, service_name, team_name, repository_name in results:
-        # If 'date' is your start and 'resolved' is your end:
         data.append(
             {
                 "start_datetime": pr.date.isoformat(),
@@ -213,59 +269,3 @@ def get_pull_requests(start_date, end_date):
             }
         )
     return data
-
-
-# if __name__ == "__main__":
-#     from datetime import datetime, timedelta
-
-#     start_date = datetime(2023, 1, 1)  # Start of 2023
-#     end_date = datetime(2023, 12, 31)  # End of 2023
-
-#     with app.app_context():
-# print("Testing get_deployment_frequency:")
-# deployments = get_deployment_frequency(start_date, end_date)
-# print(f"Found {len(deployments)} deployment entries")
-# for deployment in deployments:
-#     print(deployment)
-# print()
-
-# print("Testing get_lead_time_for_changes:")
-# lead_times = get_lead_time_for_changes(start_date, end_date)
-# print(f"Found {len(lead_times)} lead time entries")
-# for lead_time in lead_times:
-#     print(lead_time)
-# print()
-
-# print("Testing get_retro_mood:")
-# retro_moods = get_retro_mood(start_date, end_date)
-# print(f"Found {len(retro_moods)} retro mood entries")
-# for mood in retro_moods:
-#     print(mood)
-# print()
-
-# print("Testing get_open_issue_bugs:")
-# bugs = get_open_issue_bugs(start_date, end_date)
-# print(f"Found {len(bugs)} bug entries")
-# for bug in bugs:
-#     print(bug)
-# print()
-
-# print("Testing get_refinement_changes:")
-# refinement_changes = get_refinement_changes(start_date, end_date)
-# print(f"Found {len(refinement_changes)} refinement change entries")
-# for change in refinement_changes:
-#     print(change)
-# print()
-
-# print("Testing get_blocked_tasks:")
-# blocked_tasks = get_blocked_tasks(start_date, end_date)
-# print(f"Found {len(blocked_tasks)} blocked task entries")
-# for blocked in blocked_tasks:
-#     print(blocked)
-# print()
-
-# print("Testing get_pull_requests:")
-# prs = get_pull_requests(start_date, end_date)
-# print(f"Found {len(prs)} pull request entries")
-# for pr in prs:
-#     print(pr)

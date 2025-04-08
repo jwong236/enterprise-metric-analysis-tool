@@ -4,7 +4,7 @@ from datetime import datetime
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from backend.app import app
+from app import app
 from services.metrics import (
     get_deployment_frequency,
     get_lead_time_for_changes,
