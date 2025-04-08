@@ -1,5 +1,10 @@
+import sys
+import os
 from datetime import datetime
-from app import app
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from backend.app import app
 from services.metrics import (
     get_deployment_frequency,
     get_lead_time_for_changes,
@@ -7,8 +12,9 @@ from services.metrics import (
     get_open_issue_bugs,
     get_refinement_changes,
     get_blocked_tasks,
-    get_pull_requests
+    get_pull_requests,
 )
+
 
 def print_results(name, data):
     print(f"\nTesting {name}:")
@@ -20,10 +26,11 @@ def print_results(name, data):
     for entry in data[:5]:
         print(entry)
 
+
 if __name__ == "__main__":
-    start_date = datetime(2023, 1, 1)  # Start of 2023
-    end_date = datetime(2023, 12, 31)  # End of 2023
-    
+    start_date = datetime(2023, 1, 1)
+    end_date = datetime(2023, 12, 31)
+
     with app.app_context():
         tests = [
             ("get_deployment_frequency", get_deployment_frequency),
@@ -32,9 +39,9 @@ if __name__ == "__main__":
             ("get_open_issue_bugs", get_open_issue_bugs),
             ("get_refinement_changes", get_refinement_changes),
             ("get_blocked_tasks", get_blocked_tasks),
-            ("get_pull_requests", get_pull_requests)
+            ("get_pull_requests", get_pull_requests),
         ]
 
         for name, func in tests:
             data = func(start_date, end_date)
-            print_results(name, data) 
+            print_results(name, data)
