@@ -7,7 +7,6 @@ A data analysis tool to enhance productivity and developer experience by analyzi
 - [About the Project](#about-the-project)
 - [Features](#features)
 - [Screenshots and Demo](#screenshots-and-demo)
-- [Installation](#installation)
 - [Usage](#usage)
 - [Technologies Used](#technologies-used)
 - [Data Disclaimer](#data-disclaimer)
