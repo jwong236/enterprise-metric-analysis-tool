@@ -11,7 +11,6 @@ A data analysis tool to enhance productivity and developer experience by analyzi
 - [Usage](#usage)
 - [Technologies Used](#technologies-used)
 - [Data Disclaimer](#data-disclaimer)
-- [Project Journey and Research](#project-journey-and-research)
 - [Acknowledgments](#acknowledgments)
 
 ## About the Project
