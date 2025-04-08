@@ -2,16 +2,6 @@
 
 A data analysis tool to enhance productivity and developer experience by analyzing Scrum team metrics and visualizing trends. Developed as part of a UCI x SAP Capstone Project and demonstrated at UCI’s ICS fair, EMAT uses React (frontend) and Flask (backend) for a seamless, data-driven experience. For more details on our journey, research, and documentation, see the [Project Journey and Research](#project-journey-and-research) section.
 
-## Table of Contents
-
-- [About the Project](#about-the-project)
-- [Features](#features)
-- [Screenshots and Demo](#screenshots-and-demo)
-- [Usage](#usage)
-- [Technologies Used](#technologies-used)
-- [Data Disclaimer](#data-disclaimer)
-- [Acknowledgments](#acknowledgments)
-
 ## About the Project
 
 EMAT, developed in collaboration with SAP and inspired by DevOps frameworks such as DORA, SPACE, and DevEx, connects to SAP’s internal Hyperspace Portal, Jira, and GitHub to extract and analyze Scrum team metrics, generating valuable insights to enhance productivity. Using the DevEx framework, it offers insights to help Scrum teams enhance productivity, improve sprint velocity, and make data-driven decisions. An important part of the project involved determining which metrics to use and creating these metrics from scratch.
