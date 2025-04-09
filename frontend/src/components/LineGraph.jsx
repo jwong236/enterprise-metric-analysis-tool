@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { LineChart } from "@mui/x-charts/LineChart";
 import { Box, Typography, CircularProgress } from "@mui/material";
 import useMetricsData from "../hooks/useMetricsData";
-import { metricsMapping } from "../utils/constants";
 
 const rightCardBackgroundStyle = {
   padding: "1rem",
@@ -15,52 +14,39 @@ const rightCardBackgroundStyle = {
 
 const LineGraph = ({ selectedMetrics, dateRange }) => {
   const offset = 1;
-  const allMetrics = useMetricsData(dateRange); // Fetch all metric data
+  const allMetrics = useMetricsData(dateRange);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (allMetrics.length > 0) {
-      setLoading(false); // Stop loading when data is available
+      setLoading(false);
     }
   }, [allMetrics]);
 
-  // Filter allMetrics to include only selectedMetrics
   const filteredMetrics = allMetrics.filter((metric) =>
-    selectedMetrics.includes(metric.name)
+    selectedMetrics.includes(metric.endpoint)
   );
 
-  // Calculate the maximum length of the metric values for the x-axis
   const maxXAxisValue = filteredMetrics.reduce(
     (max, metric) => Math.max(max, metric.data.length),
     0
   );
 
-  // Generate x-axis data based on the longest metric
   const xAxisData = Array.from(
     { length: maxXAxisValue },
     (_, i) => i / 2 + offset
   );
 
-  // Extract the correct key from metricsMapping for each metric
   const series = filteredMetrics
     .map((metric) => {
-      const metricName = metric.name;
-      const metricKey = metricsMapping[metricName]?.key;
-
-      if (!metricKey) {
-        console.error(`No key found for metric: ${metricName}`);
-        return null;
-      }
-
-      // Extract the values using the correct key (e.g., retro_mood, avg_lead_time, etc.)
-      const data = metric.data.map((item) => item[metricKey]);
+      const data = metric.data.map((item) => item[metric.valueKey]);
 
       return {
-        label: metricName,
+        label: metric.name,
         data: data,
       };
     })
-    .filter(Boolean); // Remove null entries in case of errors
+    .filter(Boolean);
 
   return (
     <Box sx={rightCardBackgroundStyle}>

@@ -33,11 +33,11 @@ def correlations():
         metric_functions = {
             "deployment_frequency": get_deployment_frequency_timeseries,
             "lead_time_for_changes": get_lead_time_for_changes_timeseries,
-            "retro_mood": get_retro_mood_timeseries,
+            "retro_moods": get_retro_mood_timeseries,
             "open_issue_bugs": get_open_issue_bugs_timeseries,
             "refinement_changes": get_refinement_changes_timeseries,
             "blocked_task_time": get_blocked_tasks_timeseries,
-            "pull_request_merge_time": get_pull_requests_timeseries,
+            "pull_requests_merge_time": get_pull_requests_timeseries,
         }
 
         if main_metric not in metric_functions:

@@ -1,26 +1,32 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Box, Typography } from "@mui/material";
 import BarGraph from "../components/BarGraph";
 import MetricList from "../components/MetricList";
 import RangeSlider from "../components/SprintRangeSlider";
 import LineGraph from "../components/LineGraph";
-import { metricsMapping } from "../utils/constants";
+import {
+  getDisplayNames,
+  getEndpointFromDisplayName,
+  DEFAULT_METRIC,
+  DEFAULT_DATE_RANGE
+} from "../utils/metrics";
 
 export default function MainPage() {
-  const [mainMetric, setMainMetric] = useState("Deployment Frequency");
+  const [mainMetric, setMainMetric] = useState(DEFAULT_METRIC);
   const [selectedBarGraphMetrics, setSelectedBarGraphMetrics] = useState([]);
   const [selectedLineGraphMetrics, setSelectedLineGraphMetrics] = useState([]);
-
-  // State for managing the selected date range
-  const [dateRange, setDateRange] = useState([
-    new Date("2023-01-01"),
-    new Date("2023-12-31"),
-  ]);
+  const [dateRange, setDateRange] = useState(DEFAULT_DATE_RANGE);
 
   // Handler for when the date range is updated via RangeSlider
   const handleRangeChange = (newRange) => {
     setDateRange(newRange);
   };
+
+  // Handler for when the main metric is updated
+  const handleMainMetricChange = (newMainMetric) => {
+    setMainMetric(newMainMetric);
+  };
+
   return (
     <Box
       sx={{
@@ -64,14 +70,14 @@ export default function MainPage() {
           <Box sx={{ display: "flex", flexDirection: "row", gap: "2rem" }}>
             {/* Bar graph MetricList*/}
             <MetricList
-              metricsList={Object.keys(metricsMapping)}
+              metricsList={getDisplayNames()}
               toggleDropdown={true}
-              setMainMetric={setMainMetric}
+              setMainMetric={handleMainMetricChange}
               setSelectedMetrics={setSelectedBarGraphMetrics}
             />
             <BarGraph
-              mainMetric={mainMetric}
-              selectedMetrics={selectedBarGraphMetrics}
+              mainMetric={getEndpointFromDisplayName(mainMetric)}
+              selectedMetrics={selectedBarGraphMetrics.map(getEndpointFromDisplayName)}
               dateRange={dateRange}
             />
           </Box>
@@ -79,12 +85,12 @@ export default function MainPage() {
           <Box sx={{ display: "flex", flexDirection: "row", gap: "2rem" }}>
             {/* The line graph */}
             <MetricList
-              metricsList={Object.keys(metricsMapping)}
+              metricsList={getDisplayNames()}
               toggleDropdown={false}
               setSelectedMetrics={setSelectedLineGraphMetrics}
             />
             <LineGraph
-              selectedMetrics={selectedLineGraphMetrics}
+              selectedMetrics={selectedLineGraphMetrics.map(getEndpointFromDisplayName)}
               dateRange={dateRange}
             />
           </Box>

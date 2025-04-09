@@ -1,17 +1,19 @@
 import { useState, useEffect } from "react";
-import { formatDate } from "../utils/formatDate";
+import { formatDateForAPI } from "../utils/dateUtils";
 import { BASE_URL } from "../App";
+import { getEndpointFromDisplayName } from "../utils/metrics";
 
-export default function useCorrelations(dateRange, barGraphMainMetric) {
+export default function useCorrelations(dateRange, mainMetric) {
   const [correlations, setCorrelations] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
-      const startDate = formatDate(dateRange[0]);
-      const endDate = formatDate(dateRange[1]);
+      const startDate = formatDateForAPI(dateRange[0]);
+      const endDate = formatDateForAPI(dateRange[1]);
 
-
-      const metric = barGraphMainMetric.replace(/\s+/g, "_").toLowerCase();
+      const metric = mainMetric.includes("_") 
+        ? mainMetric 
+        : getEndpointFromDisplayName(mainMetric);
 
       const url = `${BASE_URL}/correlations?start_date=${startDate}&end_date=${endDate}&main_metric=${metric}`;
 
@@ -23,7 +25,6 @@ export default function useCorrelations(dateRange, barGraphMainMetric) {
 
         if (data.status === "success" && data.correlations) {
           setCorrelations(data.correlations);
-          console.log(data.correlations);
         } else {
           throw new Error(data.error || "Invalid response from API");
         }
@@ -34,7 +35,7 @@ export default function useCorrelations(dateRange, barGraphMainMetric) {
     };
 
     fetchData();
-  }, [dateRange, barGraphMainMetric]);
+  }, [dateRange, mainMetric]);
 
   return correlations;
 }
