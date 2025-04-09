@@ -4,14 +4,22 @@ import pytest
 from datetime import datetime
 from collections import defaultdict
 from app import app
+from services.utils import process_dates
 from services.metrics import (
-    get_deployment_frequency,
-    get_lead_time_for_changes,
-    get_retro_mood,
-    get_open_issue_bugs,
-    get_refinement_changes,
-    get_blocked_tasks,
-    get_pull_requests,
+    get_deployment_frequency_entries,
+    get_lead_time_for_changes_entries,
+    get_retro_mood_entries,
+    get_open_issue_bugs_entries,
+    get_refinement_changes_entries,
+    get_blocked_tasks_entries,
+    get_pull_requests_entries,
+    get_deployment_frequency_timeseries,
+    get_lead_time_for_changes_timeseries,
+    get_retro_mood_timeseries,
+    get_open_issue_bugs_timeseries,
+    get_refinement_changes_timeseries,
+    get_blocked_tasks_timeseries,
+    get_pull_requests_timeseries,
 )
 
 
@@ -27,7 +35,7 @@ def test_get_deployment_frequency(app_context):
     start_date = datetime(2023, 1, 1)
     end_date = datetime(2023, 12, 31)
 
-    data = get_deployment_frequency(start_date, end_date)
+    data = get_deployment_frequency_entries(start_date, end_date)
 
     assert len(data) > 0
 
@@ -48,7 +56,7 @@ def test_get_lead_time_for_changes(app_context):
     start_date = datetime(2023, 1, 1)
     end_date = datetime(2023, 12, 31)
 
-    data = get_lead_time_for_changes(start_date, end_date)
+    data = get_lead_time_for_changes_entries(start_date, end_date)
 
     assert len(data) > 0
 
@@ -69,7 +77,7 @@ def test_get_retro_mood(app_context):
     start_date = datetime(2023, 1, 1)
     end_date = datetime(2023, 12, 31)
 
-    data = get_retro_mood(start_date, end_date)
+    data = get_retro_mood_entries(start_date, end_date)
 
     assert len(data) > 0
 
@@ -90,7 +98,7 @@ def test_get_open_issue_bugs(app_context):
     start_date = datetime(2023, 1, 1)
     end_date = datetime(2023, 12, 31)
 
-    data = get_open_issue_bugs(start_date, end_date)
+    data = get_open_issue_bugs_entries(start_date, end_date)
 
     assert len(data) > 0
 
@@ -112,7 +120,7 @@ def test_get_refinement_changes(app_context):
     start_date = datetime(2023, 1, 1)
     end_date = datetime(2023, 12, 31)
 
-    data = get_refinement_changes(start_date, end_date)
+    data = get_refinement_changes_entries(start_date, end_date)
 
     assert len(data) > 0
 
@@ -132,7 +140,7 @@ def test_get_blocked_tasks(app_context):
     start_date = datetime(2023, 1, 1)
     end_date = datetime(2023, 12, 31)
 
-    data = get_blocked_tasks(start_date, end_date)
+    data = get_blocked_tasks_entries(start_date, end_date)
 
     assert len(data) > 0
 
@@ -155,7 +163,7 @@ def test_get_pull_requests(app_context):
     start_date = datetime(2023, 1, 1)
     end_date = datetime(2023, 12, 31)
 
-    data = get_pull_requests(start_date, end_date)
+    data = get_pull_requests_entries(start_date, end_date)
 
     assert len(data) > 0
 
@@ -185,7 +193,7 @@ def test_data_randomization():
         team_names = set()
         service_names = set()
 
-        deployments = get_deployment_frequency(start_date, end_date)
+        deployments = get_deployment_frequency_entries(start_date, end_date)
         for entry in deployments:
             team_names.add(entry["team_name"])
             service_names.add(entry["service_name"])
@@ -199,3 +207,75 @@ def test_data_randomization():
 
         for count in team_occurrence.values():
             assert count < len(deployments[:20]) * 0.7
+
+
+# --- Tests for Timeseries Functions ---
+
+# Generate sample date ranges for testing (e.g., first 2 weeks of 2023)
+SAMPLE_START = "2023-01-01"
+SAMPLE_END = "2023-12-31"
+SAMPLE_DATE_RANGES = process_dates(SAMPLE_START, SAMPLE_END)
+EXPECTED_WEEKS = len(SAMPLE_DATE_RANGES)
+
+
+def check_timeseries_structure(result, expected_weeks, value_key, value_type):
+    """Helper function to check common structure of timeseries results."""
+    assert isinstance(result, list)
+    assert len(result) == expected_weeks
+    for week_data in result:
+        assert isinstance(week_data, dict)
+        assert "date_range" in week_data
+        assert "entries" in week_data
+        assert value_key in week_data
+        assert isinstance(week_data["entries"], list)
+        # Allow None for average types
+        if value_type == float and week_data[value_key] is None:
+            pass
+        # Allow int if float is expected (for averages that are whole numbers)
+        elif value_type == float and isinstance(week_data[value_key], int):
+            pass
+        else:
+            assert isinstance(week_data[value_key], value_type)
+
+
+def test_get_deployment_frequency_timeseries(app_context):
+    """Test the structure and length of deployment frequency timeseries data."""
+    result = get_deployment_frequency_timeseries(SAMPLE_DATE_RANGES)
+    check_timeseries_structure(result, EXPECTED_WEEKS, "count", int)
+
+
+def test_get_lead_time_for_changes_timeseries(app_context):
+    """Test the structure and length of lead time for changes timeseries data."""
+    result = get_lead_time_for_changes_timeseries(SAMPLE_DATE_RANGES)
+    check_timeseries_structure(result, EXPECTED_WEEKS, "average", float)
+
+
+def test_get_retro_mood_timeseries(app_context):
+    """Test the structure and length of retro mood timeseries data."""
+    result = get_retro_mood_timeseries(SAMPLE_DATE_RANGES)
+    # Retro mood average can be None if no entries
+    check_timeseries_structure(result, EXPECTED_WEEKS, "average", float)
+
+
+def test_get_open_issue_bugs_timeseries(app_context):
+    """Test the structure and length of open issue bugs timeseries data."""
+    result = get_open_issue_bugs_timeseries(SAMPLE_DATE_RANGES)
+    check_timeseries_structure(result, EXPECTED_WEEKS, "count", int)
+
+
+def test_get_refinement_changes_timeseries(app_context):
+    """Test the structure and length of refinement changes timeseries data."""
+    result = get_refinement_changes_timeseries(SAMPLE_DATE_RANGES)
+    check_timeseries_structure(result, EXPECTED_WEEKS, "count", int)
+
+
+def test_get_blocked_tasks_timeseries(app_context):
+    """Test the structure and length of blocked tasks timeseries data."""
+    result = get_blocked_tasks_timeseries(SAMPLE_DATE_RANGES)
+    check_timeseries_structure(result, EXPECTED_WEEKS, "average", float)
+
+
+def test_get_pull_requests_timeseries(app_context):
+    """Test the structure and length of pull requests timeseries data."""
+    result = get_pull_requests_timeseries(SAMPLE_DATE_RANGES)
+    check_timeseries_structure(result, EXPECTED_WEEKS, "average", float)

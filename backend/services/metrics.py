@@ -12,9 +12,181 @@ from models import (
     Team,
     Repository,
 )
+from services.utils import format_date_range
+from datetime import datetime
 
 
-def get_deployment_frequency(start_date, end_date):
+def get_deployment_frequency_timeseries(date_ranges):
+    weekly_data = []
+
+    for start_str, end_str in date_ranges:
+        date_range_str = format_date_range(start_str, end_str)
+        deployments = get_deployment_frequency_entries(start_str, end_str)
+        deployment_count = len(deployments)
+
+        weekly_data.append(
+            {
+                "date_range": date_range_str,
+                "count": deployment_count,
+                "entries": deployments,
+            }
+        )
+
+    return weekly_data
+
+
+def get_lead_time_for_changes_timeseries(date_ranges):
+    weekly_data = []
+
+    for start_str, end_str in date_ranges:
+        date_range_str = format_date_range(start_str, end_str)
+        lead_times = get_lead_time_for_changes_entries(start_str, end_str)
+
+        avg_lead_time = 0
+        if lead_times:
+            lead_time_values = [
+                item.get("time_to_change_hours", 0) for item in lead_times
+            ]
+            avg_lead_time = sum(lead_time_values) / len(lead_time_values)
+
+        weekly_data.append(
+            {
+                "date_range": date_range_str,
+                "average": avg_lead_time,
+                "entries": lead_times,
+            }
+        )
+
+    return weekly_data
+
+
+def get_retro_mood_timeseries(date_ranges):
+    weekly_data = []
+
+    for start_str, end_str in date_ranges:
+        date_range_str = format_date_range(start_str, end_str)
+        moods = get_retro_mood_entries(start_str, end_str)
+        mood_value = moods[0]["avg_retro_mood"] if moods else None
+
+        weekly_data.append(
+            {
+                "date_range": date_range_str,
+                "average": mood_value,
+                "entries": moods,
+            }
+        )
+
+    return weekly_data
+
+
+def get_open_issue_bugs_timeseries(date_ranges):
+    weekly_data = []
+
+    for start_str, end_str in date_ranges:
+        date_range_str = format_date_range(start_str, end_str)
+        bugs = get_open_issue_bugs_entries(start_str, end_str)
+        bug_count = len(bugs)
+
+        weekly_data.append(
+            {
+                "date_range": date_range_str,
+                "count": bug_count,
+                "entries": bugs,
+            }
+        )
+
+    return weekly_data
+
+
+def get_refinement_changes_timeseries(date_ranges):
+    weekly_data = []
+
+    for start_str, end_str in date_ranges:
+        date_range_str = format_date_range(start_str, end_str)
+        changes = get_refinement_changes_entries(start_str, end_str)
+        changes_count = len(changes)
+
+        resolution_times = []
+
+        if changes:
+            for change in changes:
+                if "date" in change and "resolved" in change:
+                    date_created = datetime.strptime(change["date"], "%Y-%m-%d")
+                    date_resolved = datetime.strptime(change["resolved"], "%Y-%m-%d")
+                    resolution_time = (date_resolved - date_created).days
+                    resolution_times.append(resolution_time)
+
+        weekly_data.append(
+            {
+                "date_range": date_range_str,
+                "count": changes_count,
+                "entries": changes,
+            }
+        )
+
+    return weekly_data
+
+
+def get_blocked_tasks_timeseries(date_ranges):
+    weekly_data = []
+
+    for start_str, end_str in date_ranges:
+        date_range_str = format_date_range(start_str, end_str)
+        blocked_tasks = get_blocked_tasks_entries(start_str, end_str)
+
+        avg_blocked_time = 0
+        if blocked_tasks:
+            blocked_time_values = [
+                task.get("blocked_hours", 0) for task in blocked_tasks
+            ]
+            avg_blocked_time = sum(blocked_time_values) / len(blocked_time_values)
+
+        weekly_data.append(
+            {
+                "date_range": date_range_str,
+                "average": avg_blocked_time,
+                "entries": blocked_tasks,
+            }
+        )
+
+    return weekly_data
+
+
+def get_pull_requests_timeseries(date_ranges):
+    weekly_data = []
+
+    for start_str, end_str in date_ranges:
+        date_range_str = format_date_range(start_str, end_str)
+        pull_requests = get_pull_requests_entries(start_str, end_str)
+
+        avg_merge_time = 0
+        if pull_requests:
+            merge_time_values = []
+            for pr in pull_requests:
+                start_datetime_str = pr.get("start_datetime")
+                end_datetime_str = pr.get("end_datetime")
+
+                if start_datetime_str and end_datetime_str:
+                    start_datetime = datetime.strptime(start_datetime_str, "%Y-%m-%d")
+                    end_datetime = datetime.strptime(end_datetime_str, "%Y-%m-%d")
+                    merge_time = (end_datetime - start_datetime).days
+                    merge_time_values.append(merge_time)
+
+            if merge_time_values:
+                avg_merge_time = sum(merge_time_values) / len(merge_time_values)
+
+        weekly_data.append(
+            {
+                "date_range": date_range_str,
+                "average": avg_merge_time,
+                "entries": pull_requests,
+            }
+        )
+
+    return weekly_data
+
+
+def get_deployment_frequency_entries(start_date, end_date):
     """
     Retrieves deployment frequency data within the specified date range.
 
@@ -49,7 +221,7 @@ def get_deployment_frequency(start_date, end_date):
     return data
 
 
-def get_lead_time_for_changes(start_date, end_date):
+def get_lead_time_for_changes_entries(start_date, end_date):
     """
     Retrieves lead time for changes data within the specified date range.
 
@@ -84,7 +256,7 @@ def get_lead_time_for_changes(start_date, end_date):
     return data
 
 
-def get_retro_mood(start_date, end_date):
+def get_retro_mood_entries(start_date, end_date):
     """
     Retrieves retrospective mood data within the specified date range.
 
@@ -119,7 +291,7 @@ def get_retro_mood(start_date, end_date):
     return data
 
 
-def get_open_issue_bugs(start_date, end_date):
+def get_open_issue_bugs_entries(start_date, end_date):
     """
     Retrieves open issue bugs data within the specified date range.
 
@@ -156,7 +328,7 @@ def get_open_issue_bugs(start_date, end_date):
     return data
 
 
-def get_refinement_changes(start_date, end_date):
+def get_refinement_changes_entries(start_date, end_date):
     """
     Retrieves refinement changes data within the specified date range.
 
@@ -191,7 +363,7 @@ def get_refinement_changes(start_date, end_date):
     return data
 
 
-def get_blocked_tasks(start_date, end_date):
+def get_blocked_tasks_entries(start_date, end_date):
     """
     Retrieves blocked tasks data within the specified date range.
 
@@ -227,7 +399,7 @@ def get_blocked_tasks(start_date, end_date):
     return data
 
 
-def get_pull_requests(start_date, end_date):
+def get_pull_requests_entries(start_date, end_date):
     """
     Retrieves pull request data within the specified date range.
 
