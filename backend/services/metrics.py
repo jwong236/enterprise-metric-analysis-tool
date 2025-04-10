@@ -159,7 +159,7 @@ def get_pull_requests_timeseries(date_ranges):
         date_range_str = format_date_range(start_str, end_str)
         pull_requests = get_pull_requests_entries(start_str, end_str)
 
-        avg_merge_time = 0
+        avg_merge_time = 0.0
         if pull_requests:
             merge_time_values = []
             for pr in pull_requests:
@@ -173,7 +173,7 @@ def get_pull_requests_timeseries(date_ranges):
                     merge_time_values.append(merge_time)
 
             if merge_time_values:
-                avg_merge_time = sum(merge_time_values) / len(merge_time_values)
+                avg_merge_time = float(sum(merge_time_values)) / len(merge_time_values)
 
         weekly_data.append(
             {

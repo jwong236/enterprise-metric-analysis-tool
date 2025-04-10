@@ -3,18 +3,19 @@ import logging
 import random
 from datetime import datetime, timedelta
 from app import app, db
-from backend.models import (
+from models import (
     Team,
     Service,
     Repository,
-    PullRequest,
-    BlockedTask,
     DeploymentFrequency,
     LeadTimeForChange,
+    RetroMood,
     OpenIssueBug,
     RefinementChange,
-    RetroMood,
+    BlockedTask,
+    PullRequest,
 )
+from services.utils import format_date_range
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 logging.basicConfig(level=logging.DEBUG)
@@ -202,18 +203,21 @@ def seed_database():
                         stats["deployment"]["success"] += 1
                         id_counters["deploy"] += 1
 
-                    bug = OpenIssueBug(
-                        bug_id=generate_id(BUG_PREFIX, id_counters["bug"]),
-                        date=day,
-                        bug_title=f"Sample Bug {id_counters['bug']}",
-                        bug_description=f"This is a sample bug description for {generate_id(BUG_PREFIX, id_counters['bug'])}",
-                        status=random.choice(["Open", "In Progress", "Resolved"]),
-                        team_id=random.choice(teams).id,
-                        service_id=random.choice(services).id,
-                    )
-                    db.session.add(bug)
-                    stats["bug_count"]["success"] += 1
-                    id_counters["bug"] += 1
+                    # Create a random number of bugs per day (0-5)
+                    bug_count = random.randint(0, 5)
+                    for _ in range(bug_count):
+                        bug = OpenIssueBug(
+                            bug_id=generate_id(BUG_PREFIX, id_counters["bug"]),
+                            date=day,
+                            bug_title=f"Sample Bug {id_counters['bug']}",
+                            bug_description=f"This is a sample bug description for {generate_id(BUG_PREFIX, id_counters['bug'])}",
+                            status=random.choice(["Open", "In Progress", "Resolved"]),
+                            team_id=random.choice(teams).id,
+                            service_id=random.choice(services).id,
+                        )
+                        db.session.add(bug)
+                        stats["bug_count"]["success"] += 1
+                        id_counters["bug"] += 1
 
                     daily_changes = random.randint(0, 2)
                     for _ in range(daily_changes):

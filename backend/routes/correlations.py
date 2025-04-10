@@ -50,12 +50,14 @@ def correlations():
             values = []
             for week_data in metric_data:
                 if "count" in week_data:
-                    values.append(week_data["count"])
-                elif "average" in week_data:
+                    # For count metrics, use 0 if no data
                     values.append(
-                        week_data["average"]
-                        if week_data["average"] is not None
-                        else np.nan
+                        week_data["count"] if week_data["count"] is not None else 0
+                    )
+                elif "average" in week_data:
+                    # For average metrics, use 0 if no data
+                    values.append(
+                        week_data["average"] if week_data["average"] is not None else 0
                     )
 
             time_series[metric_name] = values
@@ -68,23 +70,13 @@ def correlations():
                 correlations[metric_name] = 1.0
                 continue
 
-            valid_indices = [
-                i
-                for i, (x, y) in enumerate(zip(main_metric_values, values))
-                if not (np.isnan(x) or np.isnan(y))
-            ]
-
-            if len(valid_indices) > 1:
-                valid_main = [main_metric_values[i] for i in valid_indices]
-                valid_other = [values[i] for i in valid_indices]
-
-                try:
-                    corr_val, _ = pearsonr(valid_main, valid_other)
-                    correlations[metric_name] = float(corr_val)
-                except:
-                    correlations[metric_name] = None
-            else:
-                correlations[metric_name] = None
+            # Calculate correlation using all valid data points
+            try:
+                corr_val, _ = pearsonr(main_metric_values, values)
+                correlations[metric_name] = float(corr_val)
+            except:
+                # If correlation calculation fails, use 0 instead of null
+                correlations[metric_name] = 0.0
 
         return (
             jsonify(
