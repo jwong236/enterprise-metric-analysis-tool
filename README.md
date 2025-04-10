@@ -1,10 +1,10 @@
 # Enterprise Metric Analysis Tool (EMAT)
 
-A data analysis tool to enhance productivity and developer experience by analyzing Scrum team metrics and visualizing trends. Developed as part of a UCI x SAP Capstone Project and demonstrated at UCI’s ICS fair, EMAT uses React (frontend) and Flask (backend) for a seamless, data-driven experience. For more details on our journey, research, and documentation, see the [Project Journey and Research](#project-journey-and-research) section.
+A data analysis tool to enhance productivity and developer experience by analyzing Scrum team metrics and visualizing trends. Developed as part of a UCI x SAP Capstone Project and demonstrated at UCI's ICS fair, EMAT uses React (frontend) and Flask (backend) for a seamless, data-driven experience.
 
 ## About the Project
 
-EMAT, developed in collaboration with SAP and inspired by DevOps frameworks such as DORA, SPACE, and DevEx, connects to SAP’s internal Hyperspace Portal, Jira, and GitHub to extract and analyze Scrum team metrics, generating valuable insights to enhance productivity. Using the DevEx framework, it offers insights to help Scrum teams enhance productivity, improve sprint velocity, and make data-driven decisions. An important part of the project involved determining which metrics to use and creating these metrics from scratch.
+EMAT, developed in collaboration with SAP and inspired by DevOps frameworks such as DORA, SPACE, and DevEx, connects to SAP's internal Hyperspace Portal, Jira, and GitHub to extract and analyze Scrum team metrics, generating valuable insights to enhance productivity. Using the DevEx framework, it offers insights to help Scrum teams enhance productivity, improve sprint velocity, and make data-driven decisions. An important part of the project involved determining which metrics to use and creating these metrics from scratch.
 
 ## Features
 
@@ -15,7 +15,7 @@ EMAT, developed in collaboration with SAP and inspired by DevOps frameworks such
 
 ## Screenshots and Demo
 
-Here’s a quick look at EMAT in action:
+Here's a quick look at EMAT in action:
 
 ### Full Page Screenshot
 
@@ -43,6 +43,8 @@ Here’s a quick look at EMAT in action:
 ### Live Demo
 
 [Click here to try the application yourself!](https://enterprise-metric-analysis-tool.onrender.com/)
+
+> **Note**: The cloud deployment may require a cold start. Please allow up to 30 seconds for the application to load on first access.
 
 ## Technologies Used
 
